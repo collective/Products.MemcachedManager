@@ -30,7 +30,7 @@ except ImportError:
     import memcache
 
 from itertools import chain
-from thread import get_ident
+from six.moves._thread import get_ident
 from Acquisition import aq_base
 from Acquisition import aq_get
 from OFS.Cache import Cache, CacheManager
@@ -88,7 +88,7 @@ else:
         def get(self, key):
             try:
                 return self._client.get(key)
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.get failed %s' % e)
                 return None
 
@@ -96,42 +96,42 @@ else:
             try:
                 return self._client.set(
                     key, value, time=time, min_compress_len=self.min_compress_len)
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.set failed %s' % e)
                 return None
 
         def delete(self, key):
             try:
                 return self._client.delete(key)
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.delete failed %s' % e)
                 return None
 
         def incr(self, key):
             try:
                 return self._client.incr(key)
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.incr failed %s' % e)
                 return None
 
         def flush_all(self):
             try:
                 self._client.flush_all()
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.flush_all failed %s' % e)
                 return None
 
         def disconnect_all(self):
             try:
                 self._client.disconnect_all()
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.disconnect_all failed %s' % e)
                 return None
 
         def get_stats(self):
             try:
                 return self._client.get_stats()
-            except MemcachedError, e:
+            except MemcachedError as e:
                 self.debuglog('memcached.get_stats failed %s' % e)
                 return None
 
@@ -392,8 +392,8 @@ class MemcachedManager(CacheManager, SimpleItem):
         self.title = str(title)
         request_vars = list(settings['request_vars'])
         request_vars.sort()
-        servers = filter(None, list(settings['servers']))
-        mirrors = filter(None, list(settings.get('mirrors', [])))
+        servers = [s for s in list(settings['servers']) if s]
+        mirrors = [m for m in list(settings.get('mirrors', [])) if m]
         debug = int(settings.get('debug', 0))
         self._settings = {
             'request_vars': tuple(request_vars),

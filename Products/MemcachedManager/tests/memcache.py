@@ -49,12 +49,13 @@ Detailed Documentation
 More detailed documentation is available in the L{Client} class.
 """
 
+from __future__ import print_function
 import re
 import sys
 import time
 import types
 try:
-    import cPickle as pickle
+    import six.moves.cPickle as pickle
 except ImportError:
     import pickle
 
@@ -121,7 +122,7 @@ class Client(object):
         if not isinstance(key, str):
             raise TypeError('argument 1 must be string, not %s' % type(key))
         if invalid_key_pattern.search(key):
-            raise ValueError, 'invalid key: "%s"' % key
+            raise ValueError('invalid key: "%s"' % key)
 
     def set_servers(self, servers):
         """
@@ -145,10 +146,10 @@ class Client(object):
         '''
         data = []
         for server in self.servers:
-            data.append((server, {'curr_items': '%s' % len(self._data.keys()),
+            data.append((server, {'curr_items': '%s' % len(list(self._data.keys())),
                                   'curr_connections': '1',
                                   'version': 'testdummy',
-                                  'total_items': '%s' % len(self._data.keys()),
+                                  'total_items': '%s' % len(list(self._data.keys())),
                                   'bytes_read': 1024,
                                   'bytes_written': 256}))
         return data
@@ -365,28 +366,28 @@ def _doctest():
     return doctest.testmod(memcache, globs=globs)
 
 if __name__ == '__main__':
-    print 'Testing docstrings...'
+    print('Testing docstrings...')
     _doctest()
-    print 'Running tests:'
-    print
+    print('Running tests:')
+    print()
     #servers = ["127.0.0.1:11211", "127.0.0.1:11212"]
     servers = ['127.0.0.1:11211']
     mc = Client(servers, debug=1)
 
     def to_s(val):
-        if not isinstance(val, types.StringTypes):
+        if not isinstance(val, (str,)):
             return '%s (%s)' % (val, type(val))
         return '%s' % val
 
     def test_setget(key, val):
-        print "Testing set/get {'%s': %s} ..." % (to_s(key), to_s(val)),
+        print("Testing set/get {'%s': %s} ..." % (to_s(key), to_s(val)), end=' ')
         mc.set(key, val)
         newval = mc.get(key)
         if newval == val:
-            print 'OK'
+            print('OK')
             return 1
         else:
-            print 'FAIL'
+            print('FAIL')
             return 0
 
     class FooStruct:
@@ -403,31 +404,31 @@ if __name__ == '__main__':
 
     test_setget('a_string', 'some random string')
     test_setget('an_integer', 42)
-    if test_setget('long', long(1<<30)):
-        print 'Testing delete ...',
+    if test_setget('long', int(1<<30)):
+        print('Testing delete ...', end=' ')
         if mc.delete('long'):
-            print 'OK'
+            print('OK')
         else:
-            print 'FAIL'
-    print 'Testing get_multi ...',
-    print mc.get_multi(['a_string', 'an_integer'])
+            print('FAIL')
+    print('Testing get_multi ...', end=' ')
+    print(mc.get_multi(['a_string', 'an_integer']))
 
-    print 'Testing get(unknown value) ...',
-    print to_s(mc.get('unknown_value'))
+    print('Testing get(unknown value) ...', end=' ')
+    print(to_s(mc.get('unknown_value')))
 
     f = FooStruct()
     test_setget('foostruct', f)
 
-    print 'Testing incr ...',
+    print('Testing incr ...', end=' ')
     x = mc.incr('an_integer', 1)
     if x == 43:
-        print 'OK'
+        print('OK')
     else:
-        print 'FAIL'
+        print('FAIL')
 
-    print 'Testing decr ...',
+    print('Testing decr ...', end=' ')
     x = mc.decr('an_integer', 1)
     if x == 42:
-        print 'OK'
+        print('OK')
     else:
-        print 'FAIL'
+        print('FAIL')

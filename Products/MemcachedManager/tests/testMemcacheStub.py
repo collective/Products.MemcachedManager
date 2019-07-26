@@ -7,6 +7,7 @@ http://gijsbert.org/cmemcache/index.html
 Based on revision 283
 """
 
+from __future__ import print_function
 import os, signal, socket, subprocess
 
 from Testing import ZopeTestCase
@@ -102,7 +103,7 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         """
 
-        print 'testing', mc, '\n\tfrom', mcm
+        print('testing', mc, '\n\tfrom', mcm)
 
         self._test_sgra(mc, 'blu', 'replace', 'will not be set', ok)
 
@@ -185,15 +186,15 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
     def test_memcache(self):
         # quick check if memcached is running
         ip, port = self.servers[0].split(':')
-        print 'ip', ip, 'port', port
+        print('ip', ip, 'port', port)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         memcached = None
         try:
             s.connect((ip, int(port)))
-        except socket.error, e:
+        except socket.error as e:
             # not running, start one
             memcached = subprocess.Popen('memcached -m 10', shell=True)
-            print 'memcached not running, starting one (pid %d)' % (memcached.pid,)
+            print('memcached not running, starting one (pid %d)' % (memcached.pid,))
             # give it some time to start
             import time
             time.sleep(0.5)
