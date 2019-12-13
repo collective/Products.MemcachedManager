@@ -19,6 +19,7 @@ $Id$
 """
 
 import re
+import six
 import time
 import logging
 
@@ -48,6 +49,7 @@ except ImportError:
 _marker = []  # Create a new marker object.
 
 logger = logging.getLogger('MemcachedManager')
+
 
 invalid_key_pattern = re.compile(r"""[^A-Za-z0-9,./;'\\\[\]\-=`<>?:"{}|_+~!@#$%^&*()]""")
 if memcache.__name__ != 'pylibmc':
@@ -136,12 +138,65 @@ else:
                 return None
 
 
+# copied from CMFPlone to not introduce dependency
+def safe_text(value, encoding='utf-8'):
+    """Converts a value to text, even it is already a text string.
+
+        >>> from Products.CMFPlone.utils import safe_unicode
+        >>> test_bytes = u'\u01b5'.encode('utf-8')
+        >>> safe_unicode('spam') == u'spam'
+        True
+        >>> safe_unicode(b'spam') == u'spam'
+        True
+        >>> safe_unicode(u'spam') == u'spam'
+        True
+        >>> safe_unicode(u'spam'.encode('utf-8')) == u'spam'
+        True
+        >>> safe_unicode(test_bytes) == u'\u01b5'
+        True
+        >>> safe_unicode(u'\xc6\xb5'.encode('iso-8859-1')) == u'\u01b5'
+        True
+        >>> safe_unicode(test_bytes, encoding='ascii') == u'\u01b5'
+        True
+        >>> safe_unicode(1) == 1
+        True
+        >>> print(safe_unicode(None))
+        None
+    """
+    if six.PY2:
+        if isinstance(value, unicode):
+            return value
+        elif isinstance(value, basestring):
+            try:
+                value = unicode(value, encoding)
+            except (UnicodeDecodeError):
+                value = value.decode('utf-8', 'replace')
+        return value
+
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, bytes):
+        try:
+            value = str(value, encoding)
+        except (UnicodeDecodeError):
+            value = value.decode('utf-8', 'replace')
+    return value
+
+
+def safe_bytes(value, encoding='utf-8'):
+    """Convert text to bytes of the specified encoding.
+    """
+    if isinstance(value, six.text_type):
+        value = value.encode(encoding)
+    return value
+
+
 class ObjectCacheEntries(dict):
     """Represents the cache for one Zope object.
     """
 
     def __init__(self, h):
-        self.h = h.strip().rstrip('/')
+        self.h = h.strip().rstrip(b'/')
 
     def aggregateIndex(self, view_name, req, req_names, local_keys, cachecounter):
         """Returns the index to be used when looking for or inserting
@@ -156,19 +211,19 @@ class ObjectCacheEntries(dict):
                 val = ''
             else:
                 val = req.get(key, '')
-            req_index.append((str(key), str(val)))
+            req_index.append((safe_text(key), safe_text(val)))
         local_index = []
         if local_keys:
             for key, val in local_keys.items():
-                local_index.append((str(key), str(val)))
+                local_index.append((safe_text(key), safe_text(val)))
             local_index.sort()
 
         md5obj = md5(self.h)
-        md5obj.update(str(view_name))
+        md5obj.update(safe_bytes(view_name))
         for key, val in chain(req_index, local_index):
-            md5obj.update(key)
-            md5obj.update(val)
-        md5obj.update(cachecounter) # Updated on invalidation
+            md5obj.update(safe_bytes(key))
+            md5obj.update(safe_bytes(val))
+        md5obj.update(safe_bytes(cachecounter))  # Updated on invalidation
 
         return md5obj.hexdigest()
 
@@ -282,6 +337,7 @@ class Memcached(Cache):
         """
         Gets a cache entry or returns default.
         """
+        view_name = safe_text(view_name)
         oc = self.getObjectCacheEntries(ob)
         if oc is None:
             return default
@@ -289,7 +345,7 @@ class Memcached(Cache):
         index = oc.aggregateIndex(view_name,
                                   aq_get(ob, 'REQUEST', None),
                                   self.request_vars, keywords,
-                                  str(getattr(ob, '_memcachedcounter', '')))
+                                  safe_text(getattr(ob, '_memcachedcounter', '')))
         entry = oc.getEntry(lastmod, self.cache, index)
         if entry is _marker:
             return default
@@ -300,12 +356,13 @@ class Memcached(Cache):
         """
         Sets a cache entry.
         """
+        view_name = safe_text(view_name)
         lastmod = self.safeGetModTime(ob, mtime_func)
         oc = self.getObjectCacheEntries(ob)
         index = oc.aggregateIndex(view_name,
                                   aq_get(ob, 'REQUEST', None),
                                   self.request_vars, keywords,
-                                  str(getattr(ob, '_memcachedcounter', '')))
+                                  safe_text(getattr(ob, '_memcachedcounter', '')))
         __traceback_info__ = ('/'.join(ob.getPhysicalPath()), data)
         oc.setEntry(lastmod, self.cache, index, data, self.max_age)
 
@@ -389,7 +446,7 @@ class MemcachedManager(CacheManager, SimpleItem):
         """
         if settings is None:
             settings = REQUEST
-        self.title = str(title)
+        self.title = safe_text(title)
         request_vars = list(settings['request_vars'])
         request_vars.sort()
         servers = [s for s in list(settings['servers']) if s]
