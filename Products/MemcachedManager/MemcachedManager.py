@@ -36,6 +36,7 @@ from Acquisition import aq_base
 from Acquisition import aq_get
 from OFS.Cache import Cache, CacheManager
 from OFS.SimpleItem import SimpleItem
+from Products.CMFPlone.utils import safe_unicode
 try:
     from AccessControl.class_init import InitializeClass
 except ImportError:
@@ -449,8 +450,8 @@ class MemcachedManager(CacheManager, SimpleItem):
         self.title = safe_text(title)
         request_vars = list(settings['request_vars'])
         request_vars.sort()
-        servers = [s for s in list(settings['servers']) if s]
-        mirrors = [m for m in list(settings.get('mirrors', [])) if m]
+        servers = [safe_unicode(s) for s in list(settings['servers']) if s]
+        mirrors = [safe_unicode(m) for m in list(settings.get('mirrors', [])) if m]
         debug = int(settings.get('debug', 0))
         self._settings = {
             'request_vars': tuple(request_vars),
