@@ -34,7 +34,7 @@ class MemcachedManagerTestCase(ZopeTestCase.ZopeTestCase):
     def afterSetUp(self):
         self._cachemanager = MemcachedManager('cache')
         self._cache = self._cachemanager.ZCacheManager_getCache()
-        self.folder.script = PythonScript('script')
+        self.folder.script = PythonScript('test-script')
         self._script = self.folder.script
 
     def beforeTearDown(self):

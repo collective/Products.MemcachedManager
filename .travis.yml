@@ -9,15 +9,16 @@ env:
 - PLONE_VERSION=4.3
 - PLONE_VERSION=5.0
 - PLONE_VERSION=5.1
+- PLONE_VERSION=5.2
 matrix:
   fast_finish: true
 before_script:
 - memcached -h
 install:
-- sed -ie "s#test-5.1#test-$PLONE_VERSION#" buildout.cfg
-- python bootstrap.py
-- bin/buildout annotate
-- bin/buildout
+- sed -ie "s#test-5.2#test-$PLONE_VERSION#" buildout.cfg
+- pip install -r requirements.txt
+- buildout annotate
+- buildout
 script:
 - bin/code-analysis
 - bin/test
