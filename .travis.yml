@@ -3,6 +3,7 @@ python:
   - 2.7
   - 3.6
   - 3.7
+  - 3.8
 sudo: false
 cache:
   directories:
@@ -12,15 +13,21 @@ jobs:
   exclude:
     - python: 3.6
       env: PLONE_VERSION=4.3
-    - python: 3.7
-      env: PLONE_VERSION=4.3
     - python: 3.6
-      env: PLONE_VERSION=5.0
-    - python: 3.7
       env: PLONE_VERSION=5.0
     - python: 3.6
       env: PLONE_VERSION=5.1
     - python: 3.7
+      env: PLONE_VERSION=4.3
+    - python: 3.7
+      env: PLONE_VERSION=5.0
+    - python: 3.7
+      env: PLONE_VERSION=5.1
+    - python: 3.8
+      env: PLONE_VERSION=4.3
+    - python: 3.8
+      env: PLONE_VERSION=5.0
+    - python: 3.8
       env: PLONE_VERSION=5.1
   fast_finish: true
 env:
