@@ -192,6 +192,16 @@ def safe_bytes(value, encoding='utf-8'):
     return value
 
 
+def safe_nativestring(value, encoding='utf-8'):
+    """Convert a value to str in py2 and to text in py3
+    """
+    if six.PY2 and isinstance(value, six.text_type):
+        value = safe_bytes(value, encoding)
+    if not six.PY2 and isinstance(value, six.binary_type):
+        value = safe_text(value, encoding)
+    return value
+
+
 class ObjectCacheEntries(dict):
     """Represents the cache for one Zope object.
     """
