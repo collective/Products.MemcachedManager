@@ -146,10 +146,10 @@ class Client(object):
         '''
         data = []
         for server in self.servers:
-            data.append((server, {'curr_items': '%s' % len(list(self._data.keys())),
+            data.append((server, {'curr_items': '%s' % len(self._data.keys()),
                                   'curr_connections': '1',
                                   'version': 'testdummy',
-                                  'total_items': '%s' % len(list(self._data.keys())),
+                                  'total_items': '%s' % len(self._data.keys()),
                                   'bytes_read': 1024,
                                   'bytes_written': 256}))
         return data

@@ -57,9 +57,11 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         # try weird server formats
         # number is not a server
-        self.assertRaises(TypeError, lambda: mc.set_servers([12]))
+        with self.assertRaises(TypeError):
+            mc.set_servers([12])
         # forget port
-        self.assertRaises(TypeError, lambda: mc.set_servers(['12']))
+        with self.assertRaises(TypeError):
+            mc.set_servers(['12'])
 
     def _test_memcache(self, mcm):
         """
@@ -68,8 +70,10 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
         mc = mcm.Client(self.servers)
         mc.set('blo', 'blu')
         self.assertEqual(mc.get('blo'), 'blu')
-        self.assertRaises(ValueError, lambda: mc.decr('nonexistantnumber'))
-        self.assertRaises(ValueError, lambda: mc.incr('nonexistantnumber'))
+        with self.assertRaises(ValueError):
+            mc.decr('nonexistantnumber')
+        with self.assertRaises(ValueError):
+            mc.incr('nonexistantnumber')
 
     def _test_sgra(self, mc, val, repval, norepval, ok):
         """
@@ -202,7 +206,7 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         # use memcache as the reference
         try:
-            import memcache
+            from Products.MemcachedManager.tests import memcache
         except ImportError:
             pass
         else:
