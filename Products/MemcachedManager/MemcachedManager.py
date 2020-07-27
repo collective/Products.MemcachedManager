@@ -187,7 +187,7 @@ class ObjectCacheEntries(dict):
     """
 
     def __init__(self, h):
-        self.h = h.strip().rstrip('/')
+        self.h = safe_nativestring(h).strip().rstrip('/')
 
     def aggregateIndex(self, view_name, req, req_names, local_keys, cachecounter):
         """Returns the index to be used when looking for or inserting
@@ -213,7 +213,7 @@ class ObjectCacheEntries(dict):
         md5obj.update(safe_bytes(view_name))
         for key, val in chain(req_index, local_index):
             md5obj.update(safe_bytes(key))
-            md5obj.update(safe_bytes(val))
+            md5obj.update(safe_bytes(str(val)))
         md5obj.update(safe_bytes(str(cachecounter)))  # Updated on invalidation
         return md5obj.hexdigest()
 
