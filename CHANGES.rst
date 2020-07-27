@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Port to Python 3
+  [ale-rt, goibhniu, reinhardt]
+
 * Support pylibmc 1.2.0 and up, by not setting the removed cache_lookup
   behaviour.
   [mj]

@@ -9,7 +9,7 @@ logger = logging.getLogger('MemcachedManager')
 
 def initialize(context):
     try:
-        import MemcachedManager
+        from Products.MemcachedManager import MemcachedManager
     except ImportError:
         logger.error('Unable to import MemcachedManager. '
                      'You may need to install the memcache '

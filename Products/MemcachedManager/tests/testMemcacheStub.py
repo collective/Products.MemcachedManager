@@ -7,6 +7,7 @@ http://gijsbert.org/cmemcache/index.html
 Based on revision 283
 """
 
+from __future__ import print_function
 import os, signal, socket, subprocess
 
 from Testing import ZopeTestCase
@@ -56,9 +57,11 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         # try weird server formats
         # number is not a server
-        self.assertRaises(TypeError, lambda: mc.set_servers([12]))
+        with self.assertRaises(TypeError):
+            mc.set_servers([12])
         # forget port
-        self.assertRaises(TypeError, lambda: mc.set_servers(['12']))
+        with self.assertRaises(TypeError):
+            mc.set_servers(['12'])
 
     def _test_memcache(self, mcm):
         """
@@ -67,8 +70,10 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
         mc = mcm.Client(self.servers)
         mc.set('blo', 'blu')
         self.assertEqual(mc.get('blo'), 'blu')
-        self.assertRaises(ValueError, lambda: mc.decr('nonexistantnumber'))
-        self.assertRaises(ValueError, lambda: mc.incr('nonexistantnumber'))
+        with self.assertRaises(ValueError):
+            mc.decr('nonexistantnumber')
+        with self.assertRaises(ValueError):
+            mc.incr('nonexistantnumber')
 
     def _test_sgra(self, mc, val, repval, norepval, ok):
         """
@@ -102,7 +107,7 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         """
 
-        print 'testing', mc, '\n\tfrom', mcm
+        print('testing', mc, '\n\tfrom', mcm)
 
         self._test_sgra(mc, 'blu', 'replace', 'will not be set', ok)
 
@@ -185,15 +190,15 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
     def test_memcache(self):
         # quick check if memcached is running
         ip, port = self.servers[0].split(':')
-        print 'ip', ip, 'port', port
+        print('ip', ip, 'port', port)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         memcached = None
         try:
             s.connect((ip, int(port)))
-        except socket.error, e:
+        except socket.error as e:
             # not running, start one
             memcached = subprocess.Popen('memcached -m 10', shell=True)
-            print 'memcached not running, starting one (pid %d)' % (memcached.pid,)
+            print('memcached not running, starting one (pid %d)' % (memcached.pid,))
             # give it some time to start
             import time
             time.sleep(0.5)
@@ -201,7 +206,7 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         # use memcache as the reference
         try:
-            import memcache
+            from Products.MemcachedManager.tests import memcache
         except ImportError:
             pass
         else:
