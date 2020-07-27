@@ -10,7 +10,7 @@ Introduction
 .. image:: https://img.shields.io/coveralls/collective/Products.MemcachedManager/master.svg
     :target: https://coveralls.io/r/collective/Products.MemcachedManager
 
-MemcachedManager is a cache similar to RAMCacheManager, using `memcached <http://memcached.org/>`_ for storage.
+MemcachedManager is a cache similar to RAMCacheManager, using `memcached <https://memcached.org/>`_ for storage.
 
 Dependencies
 ============
