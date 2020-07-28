@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1 - Unreleased
+1.1 (2020-07-28)
 ----------------
 
 * Port to Python 3
