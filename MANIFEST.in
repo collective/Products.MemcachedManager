@@ -2,3 +2,6 @@ global-exclude *.pyc
 graft docs
 graft Products
 include *.rst
+include *.txt
+include .coveragerc
+include buildout.cfg
