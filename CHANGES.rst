@@ -4,6 +4,10 @@ Changelog
 1.2 (unreleased)
 ----------------
 
+- Drop support for ancient versions of pylibmc,
+  improve the documentation and make the test run also with pylibmc
+  [ale-rt]
+
 - Code cleanup [ale-rt]
 
 

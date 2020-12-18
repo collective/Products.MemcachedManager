@@ -19,7 +19,8 @@ Usage summary
 
 This should give you a feel for how this module operates::
 
-    import memcache
+
+    from Products.MemcachedManager.tests import memcache
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
     mc.set("some_key", "Some value")

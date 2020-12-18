@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+from Products.MemcachedManager.tests import memcache
 from Products.PythonScripts.PythonScript import PythonScript
 from Testing import ZopeTestCase
-
-import memcache
 
 # Trick to make the local memcache become global memcache if present
 import sys

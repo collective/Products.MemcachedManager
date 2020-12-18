@@ -42,7 +42,7 @@ setup(
         "setuptools",
     ],
     extras_require={
-        "pylibmc": "pylibmc",
+        "pylibmc": "pylibmc>=1.2.0",
         "python-memcached": "python-memcached",
     },
     entry_points="""
