@@ -18,7 +18,16 @@ memcached manager --
 $Id$
 """
 
+from AccessControl.class_init import InitializeClass
+from Acquisition import aq_base
+from Acquisition import aq_get
+from App.special_dtml import DTMLFile
 from hashlib import md5
+from itertools import chain
+from OFS.Cache import Cache
+from OFS.Cache import CacheManager
+from OFS.SimpleItem import SimpleItem
+from six.moves._thread import get_ident
 
 import logging
 import re
@@ -31,24 +40,6 @@ try:
 except ImportError:
     import memcache
 
-from Acquisition import aq_base
-from Acquisition import aq_get
-from itertools import chain
-from OFS.Cache import Cache
-from OFS.Cache import CacheManager
-from OFS.SimpleItem import SimpleItem
-from six.moves._thread import get_ident
-
-
-try:
-    from AccessControl.class_init import InitializeClass
-except ImportError:
-    from Globals import InitializeClass
-
-try:
-    from App.special_dtml import DTMLFile
-except ImportError:
-    from Globals import DTMLFile
 
 _marker = []  # Create a new marker object.
 
