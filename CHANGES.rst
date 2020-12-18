@@ -4,7 +4,7 @@ Changelog
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Code cleanup [ale-rt]
 
 
 1.1 (2020-07-28)

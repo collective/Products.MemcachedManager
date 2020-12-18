@@ -52,16 +52,19 @@ except ImportError:
 
 _marker = []  # Create a new marker object.
 
-logger = logging.getLogger('MemcachedManager')
+logger = logging.getLogger("MemcachedManager")
 
 
-invalid_key_pattern = re.compile(r"""[^A-Za-z0-9,./;'\\\[\]\-=`<>?:"{}|_+~!@#$%^&*()]""")
-if memcache.__name__ != 'pylibmc':
+invalid_key_pattern = re.compile(
+    r"""[^A-Za-z0-9,./;'\\\[\]\-=`<>?:"{}|_+~!@#$%^&*()]"""
+)
+if memcache.__name__ != "pylibmc":
+
     class Client(memcache.Client):
-
         def debuglog(self, msg):
-            if getattr(self, 'debug', False):
+            if getattr(self, "debug", False):
                 logger.log(logging.DEBUG, msg)
+
 
 else:
     from _pylibmc import MemcachedError
@@ -69,13 +72,13 @@ else:
     class Client(object):
 
         behaviors = {
-            'tcp_nodelay': True,
-            'ketama': True,
-            }
+            "tcp_nodelay": True,
+            "ketama": True,
+        }
 
-        if memcache.__version__ < '1.2.0':
+        if memcache.__version__ < "1.2.0":
             # Recent pylibmc versions (1.2.0 and up) no longer support this option
-            behaviors['cache_lookups'] = True
+            behaviors["cache_lookups"] = True
 
         def __init__(self, servers, debug=False, pickleProtocol=None):
             # pickle protocol is always set to -1 in pylibmc
@@ -88,64 +91,64 @@ else:
                 self.min_compress_len = 0
 
         def debuglog(self, msg):
-            if getattr(self, 'debug', False):
+            if getattr(self, "debug", False):
                 logger.log(logging.DEBUG, msg)
 
         def get(self, key):
             try:
                 return self._client.get(key)
             except MemcachedError as e:
-                self.debuglog('memcached.get failed %s' % e)
+                self.debuglog("memcached.get failed %s" % e)
                 return None
 
         def set(self, key, value, time=0):
             try:
                 return self._client.set(
-                    key, value, time=time, min_compress_len=self.min_compress_len)
+                    key, value, time=time, min_compress_len=self.min_compress_len
+                )
             except MemcachedError as e:
-                self.debuglog('memcached.set failed %s' % e)
+                self.debuglog("memcached.set failed %s" % e)
                 return None
 
         def delete(self, key):
             try:
                 return self._client.delete(key)
             except MemcachedError as e:
-                self.debuglog('memcached.delete failed %s' % e)
+                self.debuglog("memcached.delete failed %s" % e)
                 return None
 
         def incr(self, key):
             try:
                 return self._client.incr(key)
             except MemcachedError as e:
-                self.debuglog('memcached.incr failed %s' % e)
+                self.debuglog("memcached.incr failed %s" % e)
                 return None
 
         def flush_all(self):
             try:
                 self._client.flush_all()
             except MemcachedError as e:
-                self.debuglog('memcached.flush_all failed %s' % e)
+                self.debuglog("memcached.flush_all failed %s" % e)
                 return None
 
         def disconnect_all(self):
             try:
                 self._client.disconnect_all()
             except MemcachedError as e:
-                self.debuglog('memcached.disconnect_all failed %s' % e)
+                self.debuglog("memcached.disconnect_all failed %s" % e)
                 return None
 
         def get_stats(self):
             try:
                 return self._client.get_stats()
             except MemcachedError as e:
-                self.debuglog('memcached.get_stats failed %s' % e)
+                self.debuglog("memcached.get_stats failed %s" % e)
                 return None
 
 
 # copied from CMFPlone to not introduce dependency
-def safe_text(value, encoding='utf-8'):
-    """ Convert value to text of the specified encoding.
-    """
+def safe_text(value, encoding="utf-8"):
+    """Convert value to text of the specified encoding."""
     if six.PY2:
         if isinstance(value, six.text_type):
             return value
@@ -153,7 +156,7 @@ def safe_text(value, encoding='utf-8'):
             try:
                 value = six.text_type(value, encoding)
             except (UnicodeDecodeError):
-                value = value.decode('utf-8', 'replace')
+                value = value.decode("utf-8", "replace")
         return value
 
     if isinstance(value, str):
@@ -162,23 +165,21 @@ def safe_text(value, encoding='utf-8'):
         try:
             value = str(value, encoding)
         except (UnicodeDecodeError):
-            value = value.decode('utf-8', 'replace')
+            value = value.decode("utf-8", "replace")
     return value
 
 
 # copied from CMFPlone to not introduce dependency
-def safe_bytes(value, encoding='utf-8'):
-    """Convert value to bytes of the specified encoding.
-    """
+def safe_bytes(value, encoding="utf-8"):
+    """Convert value to bytes of the specified encoding."""
     if isinstance(value, six.text_type):
         value = value.encode(encoding)
     return value
 
 
 # copied from CMFPlone to not introduce dependency
-def safe_nativestring(value, encoding='utf-8'):
-    """Convert value to str in py2 and to text in py3
-    """
+def safe_nativestring(value, encoding="utf-8"):
+    """Convert value to str in py2 and to text in py3"""
     if six.PY2 and isinstance(value, six.text_type):
         value = safe_bytes(value, encoding)
     if not six.PY2 and isinstance(value, six.binary_type):
@@ -187,11 +188,10 @@ def safe_nativestring(value, encoding='utf-8'):
 
 
 class ObjectCacheEntries(dict):
-    """Represents the cache for one Zope object.
-    """
+    """Represents the cache for one Zope object."""
 
     def __init__(self, h):
-        self.h = safe_nativestring(h).strip().rstrip('/')
+        self.h = safe_nativestring(h).strip().rstrip("/")
 
     def aggregateIndex(self, view_name, req, req_names, local_keys, cachecounter):
         """Returns the index to be used when looking for or inserting
@@ -203,9 +203,9 @@ class ObjectCacheEntries(dict):
         # Note: req_names is already sorted.
         for key in req_names:
             if req is None:
-                val = ''
+                val = ""
             else:
-                val = req.get(key, '')
+                val = req.get(key, "")
             req_index.append((safe_nativestring(key), safe_nativestring(val)))
         local_index = []
         if local_keys:
@@ -228,15 +228,22 @@ class ObjectCacheEntries(dict):
             return _marker
 
         if not isinstance(data, tuple):
-            logger.error('getEntry key %r under %r got %s, '
-                         'expected metadata tuple',
-                         index, self.h, repr(data))
+            logger.error(
+                "getEntry key %r under %r got %s, " "expected metadata tuple",
+                index,
+                self.h,
+                repr(data),
+            )
             return _marker
 
         if not len(data) == 2:
-            logger.error('getEntry key %r under %r got %s, '
-                         'expected metadata tuple of len() == 2',
-                         index, self.h, repr(data))
+            logger.error(
+                "getEntry key %r under %r got %s, "
+                "expected metadata tuple of len() == 2",
+                index,
+                self.h,
+                repr(data),
+            )
             return _marker
 
         if data[1] < lastmod:
@@ -247,7 +254,7 @@ class ObjectCacheEntries(dict):
         return data[0]
 
     def setEntry(self, lastmod, cache, index, data, max_age=0):
-        logger.debug('Storing %r under %r', index, self.h)
+        logger.debug("Storing %r under %r", index, self.h)
         cache.set(index, (data, lastmod), max_age)
 
 
@@ -255,7 +262,7 @@ class Memcached(Cache):
     # Note that objects of this class are not persistent,
     # nor do they make use of acquisition.
 
-    cachecountervariable = '_memcachedcounter'
+    cachecountervariable = "_memcachedcounter"
 
     def __init__(self):
         self.cache = None
@@ -264,29 +271,28 @@ class Memcached(Cache):
         # Note that we lazily allow MemcachedManager
         # to verify the correctness of the internal settings.
         self.__dict__.update(kw)
-        servers = kw.get('servers', ('127.0.0.1:11211',))
-        self.mirrors = kw.get('mirrors', ())
-        debug = kw.get('debug', 1)
+        servers = kw.get("servers", ("127.0.0.1:11211",))
+        self.mirrors = kw.get("mirrors", ())
+        debug = kw.get("debug", 1)
         if self.cache is not None:
             self.cache.disconnect_all()
         self.cache = Client(servers, debug=debug, pickleProtocol=-1)
         self.cache.debuglog(
-            '(%s) initialized client '
-            'with servers: %s' % (get_ident(), ', '.join(servers)))
+            "(%s) initialized client "
+            "with servers: %s" % (get_ident(), ", ".join(servers))
+        )
 
     def getObjectCacheEntries(self, ob, create=0):
-        """Finds or creates the associated ObjectCacheEntries object.
-        """
+        """Finds or creates the associated ObjectCacheEntries object."""
         # Use URL to avoid hash conflicts
         # and enable different keys through different URLs
-        h = getattr(ob, '_p_oid', None)
+        h = getattr(ob, "_p_oid", None)
         if h is None:
             h = ob.absolute_url()
         return ObjectCacheEntries(h)
 
     def cleanup(self):
-        """Remove cache entries.
-        """
+        """Remove cache entries."""
         self.cache.flush_all()
 
     def getCacheReport(self):
@@ -302,11 +308,12 @@ class Memcached(Cache):
         """
         Invalidates the cache entries that apply to ob.
         """
-        setattr(ob, self.cachecountervariable, getattr(ob, self.cachecountervariable, 0) + 1)
+        setattr(
+            ob, self.cachecountervariable, getattr(ob, self.cachecountervariable, 0) + 1
+        )
 
     def safeGetModTime(self, ob, mtime_func):
-        """Because Cache.ZCacheable_getModTime can return setget attribute
-        """
+        """Because Cache.ZCacheable_getModTime can return setget attribute"""
         # Similar to OFS/Cache ZCacheable_getModTime but making sure
         # mtime is float or int
         mtime = 0
@@ -314,20 +321,21 @@ class Memcached(Cache):
             # Allow mtime_func to influence the mod time.
             mtime = mtime_func()
         base = aq_base(ob)
-        objecttime = getattr(base, '_p_mtime', mtime)
+        objecttime = getattr(base, "_p_mtime", mtime)
         if not isinstance(objecttime, (int, float)):
             objecttime = 0
         mtime = max(objecttime, mtime)
-        klass = getattr(base, '__class__', None)
+        klass = getattr(base, "__class__", None)
         if klass:
-            klasstime = getattr(klass, '_p_mtime', mtime)
+            klasstime = getattr(klass, "_p_mtime", mtime)
             if not isinstance(klasstime, (int, float)):
                 klasstime = 0
             mtime = max(klasstime, mtime)
         return mtime
 
-    def ZCache_get(self, ob, view_name='', keywords=None,
-                   mtime_func=None, default=None):
+    def ZCache_get(
+        self, ob, view_name="", keywords=None, mtime_func=None, default=None
+    ):
         """
         Gets a cache entry or returns default.
         """
@@ -336,29 +344,35 @@ class Memcached(Cache):
         if oc is None:
             return default
         lastmod = self.safeGetModTime(ob, mtime_func)
-        index = oc.aggregateIndex(view_name,
-                                  aq_get(ob, 'REQUEST', None),
-                                  self.request_vars, keywords,
-                                  safe_nativestring(getattr(ob, '_memcachedcounter', '')))
+        index = oc.aggregateIndex(
+            view_name,
+            aq_get(ob, "REQUEST", None),
+            self.request_vars,
+            keywords,
+            safe_nativestring(getattr(ob, "_memcachedcounter", "")),
+        )
         entry = oc.getEntry(lastmod, self.cache, index)
         if entry is _marker:
             return default
         return entry
 
-    def ZCache_set(self, ob, data, view_name='', keywords=None,
-                   mtime_func=None):
+    def ZCache_set(self, ob, data, view_name="", keywords=None, mtime_func=None):
         """
         Sets a cache entry.
         """
         view_name = safe_nativestring(view_name)
         lastmod = self.safeGetModTime(ob, mtime_func)
         oc = self.getObjectCacheEntries(ob)
-        index = oc.aggregateIndex(view_name,
-                                  aq_get(ob, 'REQUEST', None),
-                                  self.request_vars, keywords,
-                                  safe_nativestring(getattr(ob, '_memcachedcounter', '')))
-        __traceback_info__ = ('/'.join(ob.getPhysicalPath()), data)
+        index = oc.aggregateIndex(
+            view_name,
+            aq_get(ob, "REQUEST", None),
+            self.request_vars,
+            keywords,
+            safe_nativestring(getattr(ob, "_memcachedcounter", "")),
+        )
+        __traceback_info__ = ("/".join(ob.getPhysicalPath()), data)
         oc.setEntry(lastmod, self.cache, index, data, self.max_age)
+
 
 caches = {}
 
@@ -382,37 +396,43 @@ class MemcachedManager(CacheManager, SimpleItem):
     """
 
     __ac_permissions__ = (
-        ('View management screens', ('getSettings',
-                                     'manage_main',
-                                     'manage_stats',
-                                     'getCacheReport',
-                                     )),
-        ('Change cache managers', ('manage_editProps',),
-         ('Manager',)),
-        )
+        (
+            "View management screens",
+            (
+                "getSettings",
+                "manage_main",
+                "manage_stats",
+                "getCacheReport",
+            ),
+        ),
+        ("Change cache managers", ("manage_editProps",), ("Manager",)),
+    )
 
     manage_options = (
-        {'label': 'Properties', 'action': 'manage_main'},
-        {'label': 'Statistics', 'action': 'manage_stats'},
-        ) + CacheManager.manage_options + SimpleItem.manage_options
+        (
+            {"label": "Properties", "action": "manage_main"},
+            {"label": "Statistics", "action": "manage_stats"},
+        )
+        + CacheManager.manage_options
+        + SimpleItem.manage_options
+    )
 
-    meta_type = 'Memcached Manager'
+    meta_type = "Memcached Manager"
 
     def __init__(self, ob_id):
         self.id = ob_id
-        self.title = ''
+        self.title = ""
         self._settings = {
-            'request_vars': ('AUTHENTICATED_USER',),
-            'servers': ('127.0.0.1:11211',),
-            'mirrors': (),
-            'max_age': 3600,
-            'debug': 0,
-            }
-        self.__cacheid = '%s_%f' % (id(self), time.time())
+            "request_vars": ("AUTHENTICATED_USER",),
+            "servers": ("127.0.0.1:11211",),
+            "mirrors": (),
+            "max_age": 3600,
+            "debug": 0,
+        }
+        self.__cacheid = "%s_%f" % (id(self), time.time())
 
     def getId(self):
-        """Get Object Id
-        """
+        """Get Object Id"""
         return self.id
 
     ZCacheManager_getCache__roles__ = ()
@@ -429,30 +449,28 @@ class MemcachedManager(CacheManager, SimpleItem):
             return cache
 
     def getSettings(self):
-        """Returns the current cache settings.
-        """
+        """Returns the current cache settings."""
         return self._settings.copy()
 
-    manage_main = DTMLFile('dtml/propsMM', globals())
+    manage_main = DTMLFile("dtml/propsMM", globals())
 
     def manage_editProps(self, title, settings=None, REQUEST=None):
-        """Changes the cache settings.
-        """
+        """Changes the cache settings."""
         if settings is None:
             settings = REQUEST
         self.title = safe_nativestring(title)
-        request_vars = list(settings['request_vars'])
+        request_vars = list(settings["request_vars"])
         request_vars.sort()
-        servers = [safe_nativestring(s) for s in list(settings['servers']) if s]
-        mirrors = [safe_nativestring(m) for m in list(settings.get('mirrors', [])) if m]
-        debug = int(settings.get('debug', 0))
+        servers = [safe_nativestring(s) for s in list(settings["servers"]) if s]
+        mirrors = [safe_nativestring(m) for m in list(settings.get("mirrors", [])) if m]
+        debug = int(settings.get("debug", 0))
         self._settings = {
-            'request_vars': tuple(request_vars),
-            'servers': tuple(servers),
-            'mirrors': tuple(mirrors),
-            'max_age': int(settings['max_age']),
-            'debug': debug,
-            }
+            "request_vars": tuple(request_vars),
+            "servers": tuple(servers),
+            "mirrors": tuple(mirrors),
+            "max_age": int(settings["max_age"]),
+            "debug": debug,
+        }
 
         settings = self.getSettings()
         for (tid, cid), cache in caches.items():
@@ -460,13 +478,13 @@ class MemcachedManager(CacheManager, SimpleItem):
                 cache.initSettings(settings)
         if REQUEST is not None:
             return self.manage_main(
-                self, REQUEST, manage_tabs_message='Properties changed.')
+                self, REQUEST, manage_tabs_message="Properties changed."
+            )
 
-    manage_stats = DTMLFile('dtml/statsMM', globals())
+    manage_stats = DTMLFile("dtml/statsMM", globals())
 
     def getCacheReport(self):
-        """Cache Statistics
-        """
+        """Cache Statistics"""
         c = self.ZCacheManager_getCache()
         rval = c.getCacheReport()
         return rval
@@ -474,12 +492,11 @@ class MemcachedManager(CacheManager, SimpleItem):
 
 InitializeClass(MemcachedManager)
 
-manage_addMemcachedManagerForm = DTMLFile('dtml/addMM', globals())
+manage_addMemcachedManagerForm = DTMLFile("dtml/addMM", globals())
 
 
 def manage_addMemcachedManager(self, id, REQUEST=None):
-    """Add a Memcached Manager to the folder.
-    """
+    """Add a Memcached Manager to the folder."""
     self._setObject(id, MemcachedManager(id))
     if REQUEST is not None:
         return self.manage_main(self, REQUEST)
