@@ -8,9 +8,12 @@ Based on revision 283
 """
 
 from __future__ import print_function
-import os, signal, socket, subprocess
-
 from Testing import ZopeTestCase
+
+import os
+import signal
+import socket
+import subprocess
 
 
 #-----------------------------------------------------------------------------------------
@@ -216,7 +219,7 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
         # test extension
         try:
-            from cmemcache import StringClient # Only in cmemcache
+            from cmemcache import StringClient  # Only in cmemcache
             del StringClient
             import cmemcache
         except ImportError:
@@ -233,7 +236,8 @@ class TestCmemcache( ZopeTestCase.ZopeTestCase ):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestCmemcache))
     return suite

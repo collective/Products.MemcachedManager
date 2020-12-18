@@ -50,10 +50,13 @@ More detailed documentation is available in the L{Client} class.
 """
 
 from __future__ import print_function
+
 import re
 import sys
 import time
 import types
+
+
 try:
     import six.moves.cPickle as pickle
 except ImportError:
@@ -359,7 +362,8 @@ class Client(object):
 
 
 def _doctest():
-    import doctest, memcache
+    import doctest
+    import memcache
     servers = ['127.0.0.1:11211']
     mc = Client(servers, debug=1)
     globs = {'mc': mc}

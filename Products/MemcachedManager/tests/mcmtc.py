@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-import time
-from Testing import ZopeTestCase
 from Products.PythonScripts.PythonScript import PythonScript
+from Testing import ZopeTestCase
+
 import memcache
 # Trick to make the local memcache become global memcache if present
 import sys
+import time
+
+
 sys.modules['memcache'] = memcache
 sys.modules['pylibmc'] = memcache
 from Products.MemcachedManager.MemcachedManager import MemcachedManager

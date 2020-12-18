@@ -2,6 +2,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
+
 version = '1.2.dev0'
 description = 'Memcached cache manager for Zope.'
 long_description = (

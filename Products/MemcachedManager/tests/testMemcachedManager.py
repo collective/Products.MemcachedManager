@@ -2,10 +2,10 @@
 # Copyright (c) 2004 Zope Corporation and Plone Solutions
 # ZPL 2.1 license
 
-import time
-
-from Products.MemcachedManager.tests import mcmtc
 from Products.MemcachedManager.MemcachedManager import Memcached
+from Products.MemcachedManager.tests import mcmtc
+
+import time
 
 
 class TestMemcachedManager(mcmtc.MemcachedManagerTestCase):
@@ -113,7 +113,8 @@ class TestMemcachedManager(mcmtc.MemcachedManagerTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestMemcachedManager))
     return suite

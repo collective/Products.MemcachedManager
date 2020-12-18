@@ -4,6 +4,8 @@ $Id$
 """
 
 import logging
+
+
 logger = logging.getLogger('MemcachedManager')
 
 

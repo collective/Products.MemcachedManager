@@ -18,24 +18,28 @@ memcached manager --
 $Id$
 """
 
+from hashlib import md5
+
+import logging
 import re
 import six
 import time
-import logging
 
-from hashlib import md5
 
 try:
     import pylibmc as memcache
 except ImportError:
     import memcache
 
-from itertools import chain
-from six.moves._thread import get_ident
 from Acquisition import aq_base
 from Acquisition import aq_get
-from OFS.Cache import Cache, CacheManager
+from itertools import chain
+from OFS.Cache import Cache
+from OFS.Cache import CacheManager
 from OFS.SimpleItem import SimpleItem
+from six.moves._thread import get_ident
+
+
 try:
     from AccessControl.class_init import InitializeClass
 except ImportError:

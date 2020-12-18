@@ -5,6 +5,7 @@
 
 from Testing import ZopeTestCase
 
+
 ZopeTestCase.installProduct('MemcachedManager')
 
 
@@ -20,7 +21,8 @@ class TestSetup(ZopeTestCase.ZopeTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestSetup))
     return suite
