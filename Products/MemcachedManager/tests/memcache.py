@@ -19,7 +19,8 @@ Usage summary
 
 This should give you a feel for how this module operates::
 
-    import memcache
+
+    from Products.MemcachedManager.tests import memcache
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
     mc.set("some_key", "Some value")
@@ -50,24 +51,29 @@ More detailed documentation is available in the L{Client} class.
 """
 
 from __future__ import print_function
+
 import re
 import sys
 import time
 import types
+
+
 try:
     import six.moves.cPickle as pickle
 except ImportError:
     import pickle
 
-__author__    = 'Evan Martin <martine@danga.com>'
-__version__ = '1.31'
-__copyright__ = 'Copyright (C) 2003 Danga Interactive'
-__license__   = 'Python'
+__author__ = "Evan Martin <martine@danga.com>"
+__version__ = "1.31"
+__copyright__ = "Copyright (C) 2003 Danga Interactive"
+__license__ = "Python"
 
-invalid_key_pattern = re.compile(r"""[^A-Za-z0-9,./;'\\\[\]\-=`<>?:"{}|_+~!@#$%^&*()]""")
+invalid_key_pattern = re.compile(
+    r"""[^A-Za-z0-9,./;'\\\[\]\-=`<>?:"{}|_+~!@#$%^&*()]"""
+)
 
-DATA = {} # Keyed on server list
-EXPIRATION = {} # Keyed on server list
+DATA = {}  # Keyed on server list
+EXPIRATION = {}  # Keyed on server list
 
 
 class _Error(Exception):
@@ -90,11 +96,19 @@ class Client(object):
     @sort: __init__, set_servers, forget_dead_hosts, disconnect_all, debuglog,\
            set, add, replace, get, get_multi, incr, decr, delete
     """
-    dummyclient = True # Used for waiting in tests
 
-    def __init__(self, servers, debug=0, pickleProtocol=0,
-                 pickler=pickle.Pickler, unpickler=pickle.Unpickler,
-                 pload=None, pid=None):
+    dummyclient = True  # Used for waiting in tests
+
+    def __init__(
+        self,
+        servers,
+        debug=0,
+        pickleProtocol=0,
+        pickler=pickle.Pickler,
+        unpickler=pickle.Unpickler,
+        pload=None,
+        pid=None,
+    ):
         """
         Create a new Client object with the given list of servers.
 
@@ -120,7 +134,7 @@ class Client(object):
 
     def _validate_key(self, key):
         if not isinstance(key, str):
-            raise TypeError('argument 1 must be string, not %s' % type(key))
+            raise TypeError("argument 1 must be string, not %s" % type(key))
         if invalid_key_pattern.search(key):
             raise ValueError('invalid key: "%s"' % key)
 
@@ -137,31 +151,38 @@ class Client(object):
         self.servers = servers
 
     def get_stats(self):
-        '''Get statistics from each of the servers.
+        """Get statistics from each of the servers.
 
         @return: A list of tuples ( server_identifier, stats_dictionary ).
             The dictionary contains a number of name/value pairs specifying
             the name of the status field and the string value associated with
             it.  The values are not converted from strings.
-        '''
+        """
         data = []
         for server in self.servers:
-            data.append((server, {'curr_items': '%s' % len(self._data.keys()),
-                                  'curr_connections': '1',
-                                  'version': 'testdummy',
-                                  'total_items': '%s' % len(self._data.keys()),
-                                  'bytes_read': 1024,
-                                  'bytes_written': 256}))
+            data.append(
+                (
+                    server,
+                    {
+                        "curr_items": "%s" % len(self._data.keys()),
+                        "curr_connections": "1",
+                        "version": "testdummy",
+                        "total_items": "%s" % len(self._data.keys()),
+                        "bytes_read": 1024,
+                        "bytes_written": 256,
+                    },
+                )
+            )
         return data
 
     def flush_all(self):
-        'Expire all data currently in the memcache servers.'
+        "Expire all data currently in the memcache servers."
         self._data = {}
         self._expiration = {}
 
     def debuglog(self, str):
         if self.debug:
-            sys.stderr.write('MemCached: %s\n' % str)
+            sys.stderr.write("MemCached: %s\n" % str)
 
     def _statlog(self, func):
         if func not in self.stats:
@@ -179,14 +200,15 @@ class Client(object):
         pass
 
     def delete(self, key, time=0):
-        '''Deletes a key from the memcache.
+        """Deletes a key from the memcache.
 
         @return: Nonzero on success.
         @rtype: int
-        '''
+        """
         self._validate_key(key)
-        if not self.servers: return None
-        self._statlog('delete')
+        if not self.servers:
+            return None
+        self._statlog("delete")
         if key in self._data:
             del self._data[key]
             del self._expiration[key]
@@ -218,7 +240,8 @@ class Client(object):
         @rtype: int
         """
         self._validate_key(key)
-        if not self.servers: return None
+        if not self.servers:
+            return None
         if key in self._data:
             try:
                 number = int(self._data[key])
@@ -228,7 +251,7 @@ class Client(object):
             except ValueError:
                 return None
         else:
-            raise ValueError('Could not find %s' % key)
+            raise ValueError("Could not find %s" % key)
 
     def decr(self, key, delta=1):
         """
@@ -241,7 +264,8 @@ class Client(object):
         @rtype: int
         """
         self._validate_key(key)
-        if not self.servers: return None
+        if not self.servers:
+            return None
         if key in self._data:
             try:
                 number = int(self._data[key])
@@ -251,19 +275,20 @@ class Client(object):
             except ValueError:
                 return None
         else:
-            raise ValueError('Could not find %s' % key)
+            raise ValueError("Could not find %s" % key)
 
     def add(self, key, val, time=0):
-        '''
+        """
         Add new key with value.
 
         Like L{set}, but only stores in memcache if the key doesn't already exist.
 
         @return: Nonzero on success.
         @rtype: int
-        '''
+        """
         self._validate_key(key)
-        if not self.servers: return None
+        if not self.servers:
+            return None
         sanitycheck = pickle.dumps(val, self.pickleProtocol)
         if key not in self._data:
             self._data[key] = val
@@ -272,16 +297,17 @@ class Client(object):
         return 0
 
     def replace(self, key, val, time=0):
-        '''Replace existing key with value.
+        """Replace existing key with value.
 
         Like L{set}, but only stores in memcache if the key already exists.
         The opposite of L{add}.
 
         @return: Nonzero on success.
         @rtype: int
-        '''
+        """
         self._validate_key(key)
-        if not self.servers: return None
+        if not self.servers:
+            return None
         sanitycheck = pickle.dumps(val, self.pickleProtocol)
         if key in self._data:
             self._data[key] = val
@@ -290,7 +316,7 @@ class Client(object):
         return 0
 
     def set(self, key, val, max_age=0):
-        '''Unconditionally sets a key to a given value in the memcache.
+        """Unconditionally sets a key to a given value in the memcache.
 
         The C{key} can optionally be an tuple, with the first element being the
         hash value, if you want to avoid making this module calculate a hash value.
@@ -300,9 +326,10 @@ class Client(object):
 
         @return: Nonzero on success.
         @rtype: int
-        '''
+        """
         self._validate_key(key)
-        if not self.servers: return None
+        if not self.servers:
+            return None
         sanitycheck = pickle.dumps(val, self.pickleProtocol)
         self._data[key] = val
         if max_age != 0:
@@ -311,13 +338,14 @@ class Client(object):
         return 1
 
     def get(self, key):
-        '''Retrieves a key from the memcache.
+        """Retrieves a key from the memcache.
 
         @return: The value or None.
-        '''
+        """
         self._validate_key(key)
-        if not self.servers: return None
-        self._statlog('get')
+        if not self.servers:
+            return None
+        self._statlog("get")
         value = self._data.get(key, None)
         if value is not None:
             expiry = self._expiration[key]
@@ -328,7 +356,7 @@ class Client(object):
         return value
 
     def get_multi(self, keys):
-        '''
+        """
         Retrieves multiple keys from the memcache doing just one query.
 
         >>> success = mc.set("foo", "bar")
@@ -344,11 +372,12 @@ class Client(object):
         @param keys: An array of keys.
         @return:  A dictionary of key/value pairs that were available.
 
-        '''
+        """
 
-        self._statlog('get_multi')
+        self._statlog("get_multi")
 
-        if not self.servers: return None
+        if not self.servers:
+            return None
         result = {}
         for key in keys:
             self._validate_key(key)
@@ -359,76 +388,79 @@ class Client(object):
 
 
 def _doctest():
-    import doctest, memcache
-    servers = ['127.0.0.1:11211']
+    import doctest
+    import memcache
+
+    servers = ["127.0.0.1:11211"]
     mc = Client(servers, debug=1)
-    globs = {'mc': mc}
+    globs = {"mc": mc}
     return doctest.testmod(memcache, globs=globs)
 
-if __name__ == '__main__':
-    print('Testing docstrings...')
+
+if __name__ == "__main__":
+    print("Testing docstrings...")
     _doctest()
-    print('Running tests:')
+    print("Running tests:")
     print()
-    #servers = ["127.0.0.1:11211", "127.0.0.1:11212"]
-    servers = ['127.0.0.1:11211']
+    # servers = ["127.0.0.1:11211", "127.0.0.1:11212"]
+    servers = ["127.0.0.1:11211"]
     mc = Client(servers, debug=1)
 
     def to_s(val):
         if not isinstance(val, (str,)):
-            return '%s (%s)' % (val, type(val))
-        return '%s' % val
+            return "%s (%s)" % (val, type(val))
+        return "%s" % val
 
     def test_setget(key, val):
-        print("Testing set/get {'%s': %s} ..." % (to_s(key), to_s(val)), end=' ')
+        print("Testing set/get {'%s': %s} ..." % (to_s(key), to_s(val)), end=" ")
         mc.set(key, val)
         newval = mc.get(key)
         if newval == val:
-            print('OK')
+            print("OK")
             return 1
         else:
-            print('FAIL')
+            print("FAIL")
             return 0
 
     class FooStruct:
         def __init__(self):
-            self.bar = 'baz'
+            self.bar = "baz"
 
         def __str__(self):
-            return 'A FooStruct'
+            return "A FooStruct"
 
         def __eq__(self, other):
             if isinstance(other, FooStruct):
                 return self.bar == other.bar
             return 0
 
-    test_setget('a_string', 'some random string')
-    test_setget('an_integer', 42)
-    if test_setget('long', int(1<<30)):
-        print('Testing delete ...', end=' ')
-        if mc.delete('long'):
-            print('OK')
+    test_setget("a_string", "some random string")
+    test_setget("an_integer", 42)
+    if test_setget("long", int(1 << 30)):
+        print("Testing delete ...", end=" ")
+        if mc.delete("long"):
+            print("OK")
         else:
-            print('FAIL')
-    print('Testing get_multi ...', end=' ')
-    print(mc.get_multi(['a_string', 'an_integer']))
+            print("FAIL")
+    print("Testing get_multi ...", end=" ")
+    print(mc.get_multi(["a_string", "an_integer"]))
 
-    print('Testing get(unknown value) ...', end=' ')
-    print(to_s(mc.get('unknown_value')))
+    print("Testing get(unknown value) ...", end=" ")
+    print(to_s(mc.get("unknown_value")))
 
     f = FooStruct()
-    test_setget('foostruct', f)
+    test_setget("foostruct", f)
 
-    print('Testing incr ...', end=' ')
-    x = mc.incr('an_integer', 1)
+    print("Testing incr ...", end=" ")
+    x = mc.incr("an_integer", 1)
     if x == 43:
-        print('OK')
+        print("OK")
     else:
-        print('FAIL')
+        print("FAIL")
 
-    print('Testing decr ...', end=' ')
-    x = mc.decr('an_integer', 1)
+    print("Testing decr ...", end=" ")
+    x = mc.decr("an_integer", 1)
     if x == 42:
-        print('OK')
+        print("OK")
     else:
-        print('FAIL')
+        print("FAIL")

@@ -1,40 +1,42 @@
 # -*- coding: utf-8 -*-
-import time
-from Testing import ZopeTestCase
+from Products.MemcachedManager.tests import memcache
 from Products.PythonScripts.PythonScript import PythonScript
-import memcache
+from Testing import ZopeTestCase
+
 # Trick to make the local memcache become global memcache if present
 import sys
-sys.modules['memcache'] = memcache
-sys.modules['pylibmc'] = memcache
+import time
+
+
+sys.modules["memcache"] = memcache
+sys.modules["pylibmc"] = memcache
 from Products.MemcachedManager.MemcachedManager import MemcachedManager
 
 
 class Dummy:
 
-    meta_type='foo'
+    meta_type = "foo"
 
     def __init__(self, path):
         self.path = path
 
     def getPhysicalPath(self):
-        return self.path.split('/')
+        return self.path.split("/")
 
     def absolute_url(self):
-        return 'http://nohost%s' % self.path
+        return "http://nohost%s" % self.path
 
     def __str__(self):
-        return '<Dummy: %s>' % self.path
+        return "<Dummy: %s>" % self.path
 
     __repr__ = __str__
 
 
 class MemcachedManagerTestCase(ZopeTestCase.ZopeTestCase):
-
     def afterSetUp(self):
-        self._cachemanager = MemcachedManager('cache')
+        self._cachemanager = MemcachedManager("cache")
         self._cache = self._cachemanager.ZCacheManager_getCache()
-        self.folder.script = PythonScript('test-script')
+        self.folder.script = PythonScript("test-script")
         self._script = self.folder.script
 
     def beforeTearDown(self):
@@ -44,21 +46,20 @@ class MemcachedManagerTestCase(ZopeTestCase.ZopeTestCase):
         self.dummySleep()
 
     def dummySleep(self, duration=0.5):
-        if not hasattr(self._cache.cache, 'dummyclient'): time.sleep(duration)
-
+        if not hasattr(self._cache.cache, "dummyclient"):
+            time.sleep(duration)
 
     def setRequestVars(self, request_vars):
         settings = self._cachemanager.getSettings()
-        settings['request_vars'] = request_vars
-        self._cachemanager.manage_editProps('Cache', settings=settings)
+        settings["request_vars"] = request_vars
+        self._cachemanager.manage_editProps("Cache", settings=settings)
 
     def setRefreshInterval(self, interval):
         settings = self._cachemanager.getSettings()
-        settings['refresh_interval'] = interval
-        self._cachemanager.manage_editProps('Cache', settings=settings)
+        settings["refresh_interval"] = interval
+        self._cachemanager.manage_editProps("Cache", settings=settings)
 
     def setMaxAge(self, age):
         settings = self._cachemanager.getSettings()
-        settings['max_age'] = age
-        self._cachemanager.manage_editProps('Cache', settings=settings)
-
+        settings["max_age"] = age
+        self._cachemanager.manage_editProps("Cache", settings=settings)

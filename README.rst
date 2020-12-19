@@ -21,11 +21,15 @@ Dependencies
     You provide the IP address in the MemcachedManager settings screen.
 
 
-`pylibmc <https://pypi.python.org/pypi/pylibmc>`_
+`pylibmc <https://pypi.python.org/pypi/pylibmc>`_ (version 1.2.0 or higher, tested on version 1.6.1).
+To install `pylibmc` you might neet to install the libmemcached development libraries, e.g.::
+
+    apt install libmemcached-dev
 
 or...
 
 `python-memcached <https://pypi.python.org/pypi/python-memcached>`_
+
 
 Credits
 =======

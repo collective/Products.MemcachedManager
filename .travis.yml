@@ -7,47 +7,70 @@ python:
 sudo: false
 cache:
   directories:
-  - eggs
-  - parts/node
+    - eggs
+    - parts/node
 jobs:
   exclude:
     - python: 3.6
-      env: PLONE_VERSION=4.3
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=pylibmc
     - python: 3.6
-      env: PLONE_VERSION=5.0
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=pylibmc
     - python: 3.6
-      env: PLONE_VERSION=5.1
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=pylibmc
     - python: 3.7
-      env: PLONE_VERSION=4.3
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=pylibmc
     - python: 3.7
-      env: PLONE_VERSION=5.0
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=pylibmc
     - python: 3.7
-      env: PLONE_VERSION=5.1
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=pylibmc
     - python: 3.8
-      env: PLONE_VERSION=4.3
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=pylibmc
     - python: 3.8
-      env: PLONE_VERSION=5.0
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=pylibmc
     - python: 3.8
-      env: PLONE_VERSION=5.1
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=pylibmc
+    - python: 3.6
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.6
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.6
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.7
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.7
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.7
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.8
+      env: PLONE_VERSION=4.3 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.8
+      env: PLONE_VERSION=5.0 MEMCACHED_LIBRARY=python-memcached
+    - python: 3.8
+      env: PLONE_VERSION=5.1 MEMCACHED_LIBRARY=python-memcached
   fast_finish: true
 env:
-- PLONE_VERSION=4.3
-- PLONE_VERSION=5.0
-- PLONE_VERSION=5.1
-- PLONE_VERSION=5.2
+  - PLONE_VERSION=4.3 MEMCACHED_LIBRARY=pylibmc
+  - PLONE_VERSION=4.3 MEMCACHED_LIBRARY=python-memcached
+  - PLONE_VERSION=5.0 MEMCACHED_LIBRARY=pylibmc
+  - PLONE_VERSION=5.0 MEMCACHED_LIBRARY=python-memcached
+  - PLONE_VERSION=5.1 MEMCACHED_LIBRARY=pylibmc
+  - PLONE_VERSION=5.1 MEMCACHED_LIBRARY=python-memcached
+  - PLONE_VERSION=5.2 MEMCACHED_LIBRARY=pylibmc
+  - PLONE_VERSION=5.2 MEMCACHED_LIBRARY=python-memcached
 before_script:
-- memcached -h
+  - memcached -h
 install:
-- sed -ie "s#test-5.2#test-$PLONE_VERSION#" buildout.cfg
-- pip install -r requirements.txt
-- buildout annotate
-- buildout
+  - sed -ie "s#test-5.2#test-$PLONE_VERSION#" buildout.cfg
+  - sed -ie "s#test-eggs = python-memcached#test-eggs = $MEMCACHED_LIBRARY#" buildout.cfg
+  - pip install -r requirements.txt
+  - buildout annotate
+  - buildout
 script:
-- bin/code-analysis
-- bin/test
+  - bin/code-analysis
+  - bin/test
 after_success:
-- bin/createcoverage --output-dir=htmlcov
-- pip install coveralls
-- coveralls
+  - bin/createcoverage --output-dir=htmlcov
+  - pip install coveralls
+  - coveralls
 notifications:
   irc: irc.freenode.org#plone-testing

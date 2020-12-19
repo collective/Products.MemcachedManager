@@ -4,7 +4,14 @@ Changelog
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Remove imports deprecated a decade ago.
+  [ale-rt]
+
+- Drop support for ancient versions of pylibmc,
+  improve the documentation and make the test run also with pylibmc
+  [ale-rt]
+
+- Code cleanup [ale-rt]
 
 
 1.1 (2020-07-28)
