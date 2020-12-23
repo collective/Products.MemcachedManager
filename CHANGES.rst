@@ -4,6 +4,9 @@ Changelog
 1.2 (unreleased)
 ----------------
 
+- Improve cache invalidation. (#13)
+  [ale-rt]
+
 - Remove imports deprecated a decade ago.
   [ale-rt]
 
