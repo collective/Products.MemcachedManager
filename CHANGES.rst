@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2 (unreleased)
+1.2 (2021-01-04)
 ----------------
 
 - Improve cache invalidation. (#13)
