@@ -19,6 +19,15 @@ class TestMemcachedManager(mcmtc.MemcachedManagerTestCase):
         cache = self._cache
         self.assertTrue(cache)
 
+    def testCache_get_counter_value(self):
+        cache = self._cache
+        ob = self._script
+        with self.assertRaises(AttributeError):
+            getattr(ob, cache.cachecountervariable)
+        value = cache._get_counter_value(ob=ob)
+        self.assertIsInstance(value, int)
+        self.assertEqual(value, getattr(ob, cache.cachecountervariable))
+
     def testCacheSetGet(self):
         cache = self._cache
         ob = self._script

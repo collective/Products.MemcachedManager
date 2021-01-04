@@ -27,6 +27,7 @@ from itertools import chain
 from OFS.Cache import Cache
 from OFS.Cache import CacheManager
 from OFS.SimpleItem import SimpleItem
+from random import randint
 from six.moves._thread import get_ident
 
 import logging
@@ -291,13 +292,21 @@ class Memcached(Cache):
             return stats[0]
         return stats
 
+    def _get_counter_value(self, ob):
+        try:
+            return getattr(ob, self.cachecountervariable)
+        except AttributeError:
+            pass  # We will set up a random counter to start
+
+        value = randint(0, int(time.time()))
+        setattr(ob, self.cachecountervariable, value)
+        return value
+
     def ZCache_invalidate(self, ob):
         """
         Invalidates the cache entries that apply to ob.
         """
-        setattr(
-            ob, self.cachecountervariable, getattr(ob, self.cachecountervariable, 0) + 1
-        )
+        setattr(ob, self.cachecountervariable, self._get_counter_value(ob) + 1)
 
     def safeGetModTime(self, ob, mtime_func):
         """Because Cache.ZCacheable_getModTime can return setget attribute"""
@@ -336,7 +345,7 @@ class Memcached(Cache):
             aq_get(ob, "REQUEST", None),
             self.request_vars,
             keywords,
-            safe_nativestring(getattr(ob, "_memcachedcounter", "")),
+            safe_nativestring(self._get_counter_value(ob)),
         )
         entry = oc.getEntry(lastmod, self.cache, index)
         if entry is _marker:
@@ -355,7 +364,7 @@ class Memcached(Cache):
             aq_get(ob, "REQUEST", None),
             self.request_vars,
             keywords,
-            safe_nativestring(getattr(ob, "_memcachedcounter", "")),
+            safe_nativestring(self._get_counter_value(ob)),
         )
         __traceback_info__ = ("/".join(ob.getPhysicalPath()), data)
         oc.setEntry(lastmod, self.cache, index, data, self.max_age)
