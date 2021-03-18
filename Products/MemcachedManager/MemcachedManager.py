@@ -455,8 +455,7 @@ class MemcachedManager(CacheManager, SimpleItem):
         if settings is None:
             settings = REQUEST
         self.title = safe_nativestring(title)
-        request_vars = list(settings["request_vars"])
-        request_vars.sort()
+        request_vars = sorted(safe_nativestring(r) for r in settings["request_vars"])
         servers = [safe_nativestring(s) for s in list(settings["servers"]) if s]
         mirrors = [safe_nativestring(m) for m in list(settings.get("mirrors", [])) if m]
         debug = int(settings.get("debug", 0))

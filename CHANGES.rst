@@ -1,10 +1,12 @@
 Changelog
 =========
 
-1.3 (unreleased)
-----------------
+1.2.1 (unreleased)
+------------------
 
-- Nothing changed yet.
+- Editing the memcached manager properties through the web results
+  in storing values with the proper data type. (#15)
+  [ale-rt]
 
 
 1.2 (2021-01-04)
